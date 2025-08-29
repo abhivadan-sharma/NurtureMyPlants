@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { shareLinkLimiter } from '../middleware/rateLimiting';
 
 const router = Router();
 
@@ -27,7 +28,7 @@ interface CreateShareLinkRequest {
   sessionId: string;
 }
 
-router.post('/create-share-link', async (req: Request, res: Response) => {
+router.post('/create-share-link', shareLinkLimiter, async (req: Request, res: Response) => {
   try {
     const { plantData, sessionId }: CreateShareLinkRequest = req.body;
 

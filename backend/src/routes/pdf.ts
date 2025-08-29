@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import PDFDocument from 'pdfkit';
+import { pdfGenerationLimiter } from '../middleware/rateLimiting';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ interface GeneratePdfRequest {
   sessionId: string;
 }
 
-router.post('/generate-pdf', async (req: Request, res: Response) => {
+router.post('/generate-pdf', pdfGenerationLimiter, async (req: Request, res: Response) => {
   try {
     const { plantData, sessionId }: GeneratePdfRequest = req.body;
 

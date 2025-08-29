@@ -1,12 +1,8 @@
 import { Router, Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
+import { plantIdentificationLimiter, globalApiLimiter } from '../middleware/rateLimiting';
 
 const router = Router();
-
-// Initialize Anthropic client
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'your-api-key-here',
-});
 
 interface IdentifyRequest {
   imageBase64: string;
@@ -57,7 +53,7 @@ interface CarePlan {
   tips: string[];
 }
 
-router.post('/identify-plant', async (req: Request, res: Response) => {
+router.post('/identify-plant', plantIdentificationLimiter, globalApiLimiter, async (req: Request, res: Response) => {
   try {
     const { imageBase64, sessionId }: IdentifyRequest = req.body;
 
@@ -66,6 +62,21 @@ router.post('/identify-plant', async (req: Request, res: Response) => {
     }
 
     console.log(`🔍 Processing plant identification for session: ${sessionId}`);
+    
+    // Debug: Check if API key is available
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('🔑 API Key available:', apiKey ? 'Yes' : 'No');
+    console.log('🔑 API Key starts with:', apiKey ? apiKey.substring(0, 20) + '...' : 'Not found');
+    
+    if (!apiKey || apiKey === 'your-api-key-here') {
+      console.error('❌ Invalid API key configuration');
+      return res.status(500).json({ error: 'API configuration error' });
+    }
+
+    // Initialize Anthropic client with the API key
+    const anthropic = new Anthropic({
+      apiKey: apiKey,
+    });
 
     // Step 1: Identify the plant
     const identificationPrompt = `You are a botanical expert. Analyze this plant image and provide:
@@ -84,7 +95,7 @@ Return as JSON only, no other text:
 }`;
 
     const identificationResponse = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 1000,
       messages: [
         {
@@ -170,7 +181,7 @@ Format as JSON only, no other text. Use clear, actionable advice for beginners:
 }`;
 
     const carePlanResponse = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 2000,
       messages: [
         {
