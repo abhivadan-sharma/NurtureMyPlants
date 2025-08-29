@@ -1,0 +1,32 @@
+{
+  "name": "nurturemyplants-backend",
+  "version": "1.0.0",
+  "description": "Backend API for NurtureMyPlants.com",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest"
+  },
+  "keywords": ["plants", "ai", "claude", "identification"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "redis": "^4.6.13",
+    "pdfkit": "^0.15.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.11.17",
+    "@types/pdfkit": "^0.12.12",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+}
