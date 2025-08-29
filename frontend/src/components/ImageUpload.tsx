@@ -182,11 +182,11 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
           </div>
         </div>
       ) : (
-        <div className="relative">
+        <div className="relative max-w-sm mx-auto">
           <img
             src={preview}
             alt="Plant preview"
-            className="w-full h-64 object-cover rounded-lg shadow-md"
+            className="w-80 h-64 object-cover rounded-lg shadow-md mx-auto"
           />
           <button
             onClick={handleRemoveImage}

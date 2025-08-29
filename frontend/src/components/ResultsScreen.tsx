@@ -1,88 +1,25 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-
-interface CarePlan {
-  plantName: string;
-  watering: {
-    frequency: string;
-    amount: string;
-    seasonalNotes: string;
-  };
-  light: {
-    ideal: string;
-    tolerates: string;
-  };
-  temperature: {
-    optimal: string;
-    minimum: string;
-  };
-  humidity: string;
-  soil: {
-    type: string;
-    pH: string;
-    drainage: string;
-  };
-  fertilizing: {
-    schedule: string;
-    type: string;
-  };
-  commonProblems: Array<{
-    issue: string;
-    solution: string;
-  }>;
-  maintenance: {
-    pruning: string;
-    repotting: string;
-  };
-  tips: string[];
-}
+import { plantApi, type PlantAnalysisResponse } from '../services/api';
 
 const ResultsScreen = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('watering');
   const [copied, setCopied] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isCreatingShare, setIsCreatingShare] = useState(false);
 
-  // Mock data for now - will be replaced with real API data
-  const mockCarePlan: CarePlan = {
-    plantName: location.state?.plantData?.commonName || "Unknown Plant",
-    watering: {
-      frequency: "Every 7-10 days",
-      amount: "Water thoroughly until drainage",
-      seasonalNotes: "Reduce frequency in winter"
-    },
-    light: {
-      ideal: "Bright, indirect light",
-      tolerates: "Medium light conditions"
-    },
-    temperature: {
-      optimal: "65-75°F (18-24°C)",
-      minimum: "50°F (10°C)"
-    },
-    humidity: "40-60% relative humidity",
-    soil: {
-      type: "Well-draining potting mix",
-      pH: "6.0-7.0 (slightly acidic to neutral)",
-      drainage: "Must have drainage holes"
-    },
-    fertilizing: {
-      schedule: "Monthly during growing season",
-      type: "Balanced liquid fertilizer (10-10-10)"
-    },
-    commonProblems: [
-      { issue: "Brown leaf tips", solution: "Increase humidity or check water quality" },
-      { issue: "Dropping leaves", solution: "Adjust watering schedule or lighting" }
-    ],
-    maintenance: {
-      pruning: "Remove dead leaves as needed",
-      repotting: "Every 2-3 years or when rootbound"
-    },
-    tips: [
-      "Rotate plant weekly for even growth",
-      "Wipe leaves clean monthly",
-      "Watch for pests on leaf undersides"
-    ]
-  };
+  const plantData: PlantAnalysisResponse | null = location.state?.plantData || null;
+  const imageFile: File | null = location.state?.image || null;
+
+  if (!plantData) {
+    // If no plant data, redirect to home
+    navigate('/');
+    return null;
+  }
+
+  const { identification, carePlan } = plantData;
 
   const handleNewUpload = () => {
     navigate('/');
@@ -92,6 +29,53 @@ const ResultsScreen = () => {
     navigator.clipboard.writeText(content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      setIsGeneratingPdf(true);
+      console.log('📄 Downloading PDF for:', identification.commonName);
+      
+      const pdfBlob = await plantApi.generatePdf(plantData);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${identification.commonName.replace(/[^a-zA-Z0-9]/g, '_')}_care_guide.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log('✅ PDF downloaded successfully');
+    } catch (error) {
+      console.error('❌ PDF download failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const handleCreateShareLink = async () => {
+    try {
+      setIsCreatingShare(true);
+      console.log('🔗 Creating share link for:', identification.commonName);
+      
+      const shareData = await plantApi.createShareLink(plantData);
+      
+      // Copy share URL to clipboard
+      await navigator.clipboard.writeText(shareData.shareUrl);
+      
+      alert(`Share link copied to clipboard!\n\nLink: ${shareData.shareUrl}\n\nExpires: ${new Date(shareData.expiresAt).toLocaleDateString()}`);
+      
+      console.log('✅ Share link created and copied');
+    } catch (error) {
+      console.error('❌ Share link creation failed:', error);
+      alert('Failed to create share link. Please try again.');
+    } finally {
+      setIsCreatingShare(false);
+    }
   };
 
   const tabs = [
@@ -110,45 +94,45 @@ const ResultsScreen = () => {
       case 'watering':
         return (
           <div className="space-y-4">
-            <div><strong>Frequency:</strong> {mockCarePlan.watering.frequency}</div>
-            <div><strong>Amount:</strong> {mockCarePlan.watering.amount}</div>
-            <div><strong>Seasonal Notes:</strong> {mockCarePlan.watering.seasonalNotes}</div>
+            <div><strong>Frequency:</strong> {carePlan.watering.frequency}</div>
+            <div><strong>Amount:</strong> {carePlan.watering.amount}</div>
+            <div><strong>Seasonal Notes:</strong> {carePlan.watering.seasonalNotes}</div>
           </div>
         );
       case 'light':
         return (
           <div className="space-y-4">
-            <div><strong>Ideal:</strong> {mockCarePlan.light.ideal}</div>
-            <div><strong>Tolerates:</strong> {mockCarePlan.light.tolerates}</div>
+            <div><strong>Ideal:</strong> {carePlan.light.ideal}</div>
+            <div><strong>Tolerates:</strong> {carePlan.light.tolerates}</div>
           </div>
         );
       case 'temperature':
         return (
           <div className="space-y-4">
-            <div><strong>Optimal:</strong> {mockCarePlan.temperature.optimal}</div>
-            <div><strong>Minimum:</strong> {mockCarePlan.temperature.minimum}</div>
-            <div><strong>Humidity:</strong> {mockCarePlan.humidity}</div>
+            <div><strong>Optimal:</strong> {carePlan.temperature.optimal}</div>
+            <div><strong>Minimum:</strong> {carePlan.temperature.minimum}</div>
+            <div><strong>Humidity:</strong> {carePlan.humidity}</div>
           </div>
         );
       case 'soil':
         return (
           <div className="space-y-4">
-            <div><strong>Type:</strong> {mockCarePlan.soil.type}</div>
-            <div><strong>pH:</strong> {mockCarePlan.soil.pH}</div>
-            <div><strong>Drainage:</strong> {mockCarePlan.soil.drainage}</div>
+            <div><strong>Type:</strong> {carePlan.soil.type}</div>
+            <div><strong>pH:</strong> {carePlan.soil.pH}</div>
+            <div><strong>Drainage:</strong> {carePlan.soil.drainage}</div>
           </div>
         );
       case 'fertilizing':
         return (
           <div className="space-y-4">
-            <div><strong>Schedule:</strong> {mockCarePlan.fertilizing.schedule}</div>
-            <div><strong>Type:</strong> {mockCarePlan.fertilizing.type}</div>
+            <div><strong>Schedule:</strong> {carePlan.fertilizing.schedule}</div>
+            <div><strong>Type:</strong> {carePlan.fertilizing.type}</div>
           </div>
         );
       case 'problems':
         return (
           <div className="space-y-4">
-            {mockCarePlan.commonProblems.map((problem, index) => (
+            {carePlan.commonProblems.map((problem, index) => (
               <div key={index} className="border-l-4 border-red-400 pl-4">
                 <div className="font-semibold text-red-700">{problem.issue}</div>
                 <div className="text-gray-700">{problem.solution}</div>
@@ -159,14 +143,14 @@ const ResultsScreen = () => {
       case 'maintenance':
         return (
           <div className="space-y-4">
-            <div><strong>Pruning:</strong> {mockCarePlan.maintenance.pruning}</div>
-            <div><strong>Repotting:</strong> {mockCarePlan.maintenance.repotting}</div>
+            <div><strong>Pruning:</strong> {carePlan.maintenance.pruning}</div>
+            <div><strong>Repotting:</strong> {carePlan.maintenance.repotting}</div>
           </div>
         );
       case 'tips':
         return (
           <ul className="space-y-2">
-            {mockCarePlan.tips.map((tip, index) => (
+            {carePlan.tips.map((tip, index) => (
               <li key={index} className="flex items-start">
                 <span className="text-plant-green mr-2">•</span>
                 {tip}
@@ -184,32 +168,94 @@ const ResultsScreen = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-plant-green mb-2">
-          {mockCarePlan.plantName}
+          {identification.commonName}
         </h1>
-        <p className="text-gray-600">
-          {location.state?.plantData?.scientificName || "Scientific name unknown"}
+        <p className="text-gray-600 mb-4">
+          {identification.scientificName}
         </p>
-        {location.state?.plantData?.confidence === 'medium' && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 py-2 rounded mt-4 inline-block">
-            ⚠️ Medium confidence identification
+
+        {/* Image Preview */}
+        {imageFile && (
+          <div className="max-w-sm mx-auto mb-4">
+            <img
+              src={URL.createObjectURL(imageFile)}
+              alt="Your plant"
+              className="w-full h-48 object-cover rounded-lg shadow-md"
+            />
+          </div>
+        )}
+        
+        {/* Confidence indicator */}
+        {identification.confidence !== 'high' && (
+          <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+            identification.confidence === 'medium' 
+              ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+              : 'bg-red-100 text-red-800 border border-red-300'
+          }`}>
+            {identification.confidence === 'medium' ? '⚠️ Medium confidence' : '❓ Low confidence'}
+          </div>
+        )}
+        
+        {/* Alternative identifications */}
+        {identification.alternatives && identification.alternatives.length > 0 && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="font-medium text-blue-800 mb-2">Alternative possibilities:</p>
+            <div className="text-sm text-blue-700">
+              {identification.alternatives.map((alt, index) => (
+                <span key={index}>
+                  {alt.commonName} ({alt.scientificName})
+                  {index < identification.alternatives!.length - 1 && ', '}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Identifying features */}
+        {identification.identifyingFeatures && identification.identifyingFeatures.length > 0 && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="font-medium text-green-800 mb-2">Key identifying features:</p>
+            <ul className="text-sm text-green-700 text-left">
+              {identification.identifyingFeatures.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-green-600 mr-2">•</span>
+                  {feature}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8 max-w-md mx-auto">
-        <button className="bg-plant-green hover:bg-leaf-green text-white px-4 py-2 rounded-lg flex-1">
-          📄 Download PDF
-        </button>
         <button 
-          onClick={() => handleCopySection('share link')}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex-1"
+          onClick={handleDownloadPdf}
+          disabled={isGeneratingPdf}
+          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            isGeneratingPdf
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-plant-green hover:bg-leaf-green text-white'
+          }`}
         >
-          🔗 Share Link
+          {isGeneratingPdf ? '⏳ Generating...' : '📄 Download PDF'}
         </button>
+        
+        <button 
+          onClick={handleCreateShareLink}
+          disabled={isCreatingShare}
+          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            isCreatingShare
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
+        >
+          {isCreatingShare ? '⏳ Creating...' : '🔗 Share Link'}
+        </button>
+        
         <button 
           onClick={handleNewUpload}
-          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex-1"
+          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
         >
           📷 New Upload
         </button>
@@ -255,7 +301,7 @@ const ResultsScreen = () => {
             </h3>
             <button
               onClick={() => handleCopySection(JSON.stringify(renderTabContent()))}
-              className={`px-3 py-1 text-sm rounded ${
+              className={`px-3 py-1 text-sm rounded transition-colors duration-200 ${
                 copied 
                   ? 'bg-green-100 text-green-700' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
