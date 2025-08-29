@@ -8,6 +8,7 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -73,12 +74,15 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
     });
   };
 
+
   const handleFileSelect = async (file: File) => {
     setError(null);
+    setIsProcessing(true);
 
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
+      setIsProcessing(false);
       return;
     }
 
@@ -93,8 +97,14 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
       // Call parent callback
       onImageSelect(compressedFile);
     } catch (error) {
-      setError('Failed to process image. Please try another file.');
-      console.error('Image compression error:', error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Failed to process image. Please try another file.');
+      }
+      console.error('Image processing error:', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -132,6 +142,7 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
   const handleRemoveImage = () => {
     setPreview(null);
     setError(null);
+    setIsProcessing(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -146,7 +157,9 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200 ${
-            isDragging
+            isProcessing
+              ? 'border-blue-400 bg-blue-50 cursor-wait'
+              : isDragging
               ? 'border-plant-green bg-green-50'
               : error
               ? 'border-red-400 bg-red-50'
@@ -157,10 +170,10 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
             <div className="text-6xl">📸</div>
             <div>
               <p className="text-lg font-medium text-gray-700 mb-2">
-                Upload Your Plant Photo
+                {isProcessing ? 'Processing Image...' : 'Upload Your Plant Photo'}
               </p>
               <p className="text-sm text-gray-500">
-                Click here or drag and drop your image
+                {isProcessing ? 'Processing image, please wait' : 'Click here or drag and drop your image'}
               </p>
               <p className="text-xs text-gray-400 mt-2">
                 JPEG, PNG, WebP • Max 10MB
