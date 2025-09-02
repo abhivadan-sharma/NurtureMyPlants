@@ -268,15 +268,25 @@ const ResultsScreen = () => {
         <div className="max-w-6xl mx-auto">
           {/* Mobile: Modern Dropdown */}
           <div className="md:hidden mb-8">
-            <select
-              value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value)}
-              className="w-full p-4 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm text-gray-800 font-medium shadow-lg focus:ring-2 focus:ring-plant-green focus:border-plant-green"
-            >
-              {tabs.map(tab => (
-                <option key={tab.id} value={tab.id}>{tab.label}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="w-full p-5 pr-12 border-2 border-green-200 rounded-2xl bg-gradient-to-r from-white to-green-50 backdrop-blur-sm text-gray-800 font-semibold text-lg shadow-xl focus:ring-4 focus:ring-green-300 focus:border-green-400 transition-all duration-300 appearance-none cursor-pointer hover:shadow-2xl"
+              >
+                {tabs.map(tab => (
+                  <option key={tab.id} value={tab.id} className="p-4 text-lg font-medium">
+                    {tab.label}
+                  </option>
+                ))}
+              </select>
+              {/* Custom dropdown arrow */}
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Desktop: Modern Tab Navigation */}
