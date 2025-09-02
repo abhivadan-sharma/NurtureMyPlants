@@ -85,13 +85,18 @@ export const plantApi = {
       const imageBase64 = await fileToBase64(imageFile);
       const sessionId = generateSessionId();
 
+      const finalUrl = `${API_BASE_URL}/api/identify-plant`;
+      
       console.log('🌱 Sending plant identification request...', {
         imageSize: imageFile.size,
         imageType: imageFile.type,
-        sessionId
+        sessionId,
+        hostname: window.location.hostname,
+        API_BASE_URL,
+        finalUrl
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/identify-plant`, {
+      const response = await fetch(finalUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
