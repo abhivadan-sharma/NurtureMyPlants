@@ -9,7 +9,7 @@ import { shareRouter } from './routes/share';
 import { generalApiLimiter } from './middleware/rateLimiting';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Middleware
 app.use(cors());

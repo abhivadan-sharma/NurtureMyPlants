@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { plantApi } from '../services/api';
 
 const ProcessingScreen = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [progress, setProgress] = useState(0);
   const [currentFact, setCurrentFact] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState('Uploading image');
 
   const plantFacts = [
     "🌱 Did you know? Plants can communicate with each other through chemical signals!",
@@ -21,45 +24,121 @@ const ProcessingScreen = () => {
       return;
     }
 
-    // Simulate processing with progress updates
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          // Navigate to results after processing
-          setTimeout(() => {
+    let cancelled = false;
+
+    const processPlantIdentification = async () => {
+      try {
+        // Start progress animation
+        const progressInterval = setInterval(() => {
+          if (cancelled) return;
+          
+          setProgress(prev => {
+            if (prev >= 90) return prev; // Stop at 90% until API completes
+            return prev + 1;
+          });
+        }, 100);
+
+        // Update steps during processing
+        setTimeout(() => {
+          if (!cancelled) setCurrentStep('Analyzing plant features');
+        }, 2000);
+        
+        setTimeout(() => {
+          if (!cancelled) setCurrentStep('Generating care plan');
+        }, 4000);
+
+        // Make the API call
+        const plantData = await plantApi.identifyPlant(location.state.image);
+        
+        if (cancelled) return;
+
+        // Complete progress
+        setProgress(100);
+        setCurrentStep('Analysis complete');
+
+        // Navigate to results after a brief pause
+        setTimeout(() => {
+          if (!cancelled) {
             navigate('/results', { 
               state: { 
                 image: location.state.image,
-                // Mock data for now - will be replaced with real API call
-                plantData: {
-                  commonName: "Fiddle Leaf Fig",
-                  scientificName: "Ficus lyrata",
-                  confidence: "high"
-                }
+                plantData: plantData
               } 
             });
-          }, 1000);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 200);
+          }
+        }, 1000);
+
+        clearInterval(progressInterval);
+
+      } catch (error) {
+        if (cancelled) return;
+        
+        console.error('Plant identification error:', error);
+        setError(error instanceof Error ? error.message : 'Failed to identify plant');
+        setProgress(0);
+        setCurrentStep('Error occurred');
+      }
+    };
+
+    processPlantIdentification();
 
     // Cycle through plant facts
     const factInterval = setInterval(() => {
-      setCurrentFact(prev => (prev + 1) % plantFacts.length);
+      if (!cancelled) {
+        setCurrentFact(prev => (prev + 1) % plantFacts.length);
+      }
     }, 3000);
 
     return () => {
-      clearInterval(interval);
+      cancelled = true;
       clearInterval(factInterval);
     };
-  }, [location.state, navigate]);
+  }, [location.state, navigate, plantFacts.length]);
 
   const handleCancel = () => {
     navigate('/');
   };
+
+  const handleRetry = () => {
+    setError(null);
+    setProgress(0);
+    setCurrentStep('Uploading image');
+    // Trigger re-processing by updating the state
+    window.location.reload();
+  };
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-md mx-auto text-center">
+          <h1 className="text-3xl font-bold text-red-600 mb-8">
+            Analysis Failed ❌
+          </h1>
+          
+          <div className="bg-red-50 border border-red-400 text-red-700 px-6 py-4 rounded-lg mb-8">
+            <p className="font-medium mb-2">Error:</p>
+            <p className="text-sm">{error}</p>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={handleRetry}
+              className="w-full bg-plant-green hover:bg-leaf-green text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+            >
+              Try Again
+            </button>
+            
+            <button
+              onClick={handleCancel}
+              className="w-full px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+            >
+              Upload Different Image
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -92,7 +171,7 @@ const ProcessingScreen = () => {
               className="text-plant-green"
               strokeDasharray={351.86}
               strokeDashoffset={351.86 - (progress / 100) * 351.86}
-              style={{ transition: 'stroke-dashoffset 0.2s ease' }}
+              style={{ transition: 'stroke-dashoffset 0.3s ease' }}
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
@@ -112,23 +191,30 @@ const ProcessingScreen = () => {
         {/* Processing Steps */}
         <div className="text-left mb-8">
           <div className="flex items-center mb-3">
-            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 20 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
-            <span className={progress > 20 ? 'text-plant-green font-medium' : 'text-gray-500'}>
+            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 10 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
+            <span className={progress > 10 ? 'text-plant-green font-medium' : 'text-gray-500'}>
               Uploading image
             </span>
           </div>
           <div className="flex items-center mb-3">
-            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 50 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
-            <span className={progress > 50 ? 'text-plant-green font-medium' : 'text-gray-500'}>
+            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 40 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
+            <span className={progress > 40 ? 'text-plant-green font-medium' : 'text-gray-500'}>
               Analyzing plant features
             </span>
           </div>
           <div className="flex items-center">
-            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 80 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
-            <span className={progress > 80 ? 'text-plant-green font-medium' : 'text-gray-500'}>
+            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 70 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
+            <span className={progress > 70 ? 'text-plant-green font-medium' : 'text-gray-500'}>
               Generating care plan
             </span>
           </div>
+        </div>
+
+        {/* Current Step */}
+        <div className="mb-8">
+          <p className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg">
+            {currentStep}...
+          </p>
         </div>
 
         {/* Cancel Button */}
