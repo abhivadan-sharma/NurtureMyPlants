@@ -3,16 +3,13 @@
   "builds": [
     {
       "src": "backend/src/server.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["backend/src/**"]
-      }
+      "use": "@vercel/node"
     },
     {
-      "src": "frontend/package.json",
+      "src": "frontend/package.json", 
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "frontend/dist"
+        "distDir": "dist"
       }
     }
   ],
@@ -26,12 +23,6 @@
       "dest": "frontend/dist/$1"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "backend/src/server.ts": {
-      "maxDuration": 30
-    }
-  }
+  "buildCommand": "cd frontend && npm ci && npm run build",
+  "installCommand": "cd backend && npm ci && cd ../frontend && npm ci"
 }

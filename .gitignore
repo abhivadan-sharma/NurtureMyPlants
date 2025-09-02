@@ -50,3 +50,4 @@ temp/
 
 # Redis dumps
 dump.rdb
+.vercel
