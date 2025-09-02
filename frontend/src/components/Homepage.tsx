@@ -24,8 +24,8 @@ const Homepage = () => {
           <div className="inline-block p-4 bg-white rounded-full shadow-lg mb-6 animate-bounce-subtle">
             <span className="text-4xl">🌱</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-green-600 via-emerald-500 to-green-800 bg-clip-text text-transparent mb-6">
-            NurtureMyPlants
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-green-600 via-emerald-500 to-green-800 bg-clip-text text-transparent mb-8">
+            Nurture My Plants
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Discover your plant's identity and unlock personalized care secrets with AI-powered botanical expertise
