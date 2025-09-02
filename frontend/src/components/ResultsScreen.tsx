@@ -164,154 +164,158 @@ const ResultsScreen = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-plant-green mb-2">
-          {identification.commonName}
-        </h1>
-        <p className="text-gray-600 mb-4">
-          {identification.scientificName}
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-soft-mint via-white to-nature-beige">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12 animate-fade-in">
+          <div className="inline-block p-3 bg-white rounded-full shadow-lg mb-4">
+            <span className="text-3xl">🌿</span>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-display font-bold bg-gradient-to-r from-plant-green via-leaf-green to-forest-green bg-clip-text text-transparent mb-3">
+            {identification.commonName}
+          </h1>
+          <p className="text-sage-green text-lg italic mb-6 font-medium">
+            {identification.scientificName}
+          </p>
 
         {/* Image Preview */}
         {imageFile && (
-          <div className="max-w-sm mx-auto mb-4">
+          <div className="max-w-xs mx-auto mb-6">
             <img
               src={URL.createObjectURL(imageFile)}
               alt="Your plant"
-              className="w-full h-48 object-cover rounded-lg shadow-md"
+              className="w-full h-40 object-cover rounded-xl shadow-lg ring-2 ring-green-100"
             />
           </div>
         )}
         
-        {/* Confidence indicator */}
-        {identification.confidence !== 'high' && (
-          <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            identification.confidence === 'medium' 
-              ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-              : 'bg-red-100 text-red-800 border border-red-300'
-          }`}>
-            {identification.confidence === 'medium' ? '⚠️ Medium confidence' : '❓ Low confidence'}
-          </div>
-        )}
-        
-        {/* Alternative identifications */}
-        {identification.alternatives && identification.alternatives.length > 0 && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="font-medium text-blue-800 mb-2">Alternative possibilities:</p>
-            <div className="text-sm text-blue-700">
-              {identification.alternatives.map((alt, index) => (
-                <span key={index}>
-                  {alt.commonName} ({alt.scientificName})
-                  {index < identification.alternatives!.length - 1 && ', '}
-                </span>
-              ))}
+          {/* Confidence indicator */}
+          {identification.confidence !== 'high' && (
+            <div className={`inline-block px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm border ${
+              identification.confidence === 'medium' 
+                ? 'bg-amber-100/80 text-amber-800 border-amber-200'
+                : 'bg-red-100/80 text-red-800 border-red-200'
+            }`}>
+              {identification.confidence === 'medium' ? '⚠️ Medium Confidence' : '❓ Low Confidence'}
             </div>
-          </div>
-        )}
+          )}
+        
+          {/* Alternative identifications */}
+          {identification.alternatives && identification.alternatives.length > 0 && (
+            <div className="mt-6 p-5 bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-2xl">
+              <p className="font-display font-semibold text-blue-800 mb-3">Alternative possibilities:</p>
+              <div className="text-blue-700">
+                {identification.alternatives.map((alt, index) => (
+                  <span key={index} className="inline-block bg-white/70 rounded-full px-3 py-1 text-sm mr-2 mb-2">
+                    {alt.commonName} <em className="text-blue-600">({alt.scientificName})</em>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
-        {/* Identifying features */}
-        {identification.identifyingFeatures && identification.identifyingFeatures.length > 0 && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="font-medium text-green-800 mb-2">Key identifying features:</p>
-            <ul className="text-sm text-green-700 text-left">
-              {identification.identifyingFeatures.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-green-600 mr-2">•</span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          {/* Identifying features */}
+          {identification.identifyingFeatures && identification.identifyingFeatures.length > 0 && (
+            <div className="mt-6 p-5 bg-green-50/80 backdrop-blur-sm border border-green-200 rounded-2xl">
+              <p className="font-display font-semibold text-green-800 mb-4">Key identifying features:</p>
+              <ul className="text-green-700 text-left space-y-2">
+                {identification.identifyingFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-plant-green mr-3 text-lg">•</span>
+                    <span className="leading-relaxed">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8 max-w-md mx-auto">
-        <button 
-          onClick={handleDownloadPdf}
-          disabled={isGeneratingPdf}
-          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-            isGeneratingPdf
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-plant-green hover:bg-leaf-green text-white'
-          }`}
-        >
-          {isGeneratingPdf ? '⏳ Generating...' : '📄 Download PDF'}
-        </button>
-        
-        <button 
-          onClick={handleCreateShareLink}
-          disabled={isCreatingShare}
-          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-            isCreatingShare
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {isCreatingShare ? '⏳ Creating...' : '🔗 Share Link'}
-        </button>
-        
-        <button 
-          onClick={handleNewUpload}
-          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-        >
-          📷 New Upload
-        </button>
-      </div>
-
-      {/* Care Plan Tabs */}
-      <div className="max-w-4xl mx-auto">
-        {/* Mobile: Dropdown */}
-        <div className="md:hidden mb-6">
-          <select
-            value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg bg-white"
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-12 max-w-2xl mx-auto animate-slide-up">
+          <button 
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg ${
+              isGeneratingPdf
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-plant-green to-leaf-green hover:from-leaf-green hover:to-forest-green text-white hover:shadow-xl transform hover:scale-105'
+            }`}
           >
-            {tabs.map(tab => (
-              <option key={tab.id} value={tab.id}>{tab.label}</option>
-            ))}
-          </select>
+            {isGeneratingPdf ? '⏳ Generating...' : '📄 Download PDF'}
+          </button>
+          
+          <button 
+            onClick={handleCreateShareLink}
+            disabled={isCreatingShare}
+            className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg ${
+              isCreatingShare
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white hover:shadow-xl transform hover:scale-105'
+            }`}
+          >
+            {isCreatingShare ? '⏳ Creating...' : '🔗 Share Link'}
+          </button>
+          
+          <button 
+            onClick={handleNewUpload}
+            className="flex-1 bg-gradient-to-r from-sage-green to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            📷 New Upload
+          </button>
         </div>
 
-        {/* Desktop: Tab Navigation */}
-        <div className="hidden md:flex flex-wrap border-b border-gray-200 mb-6">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors duration-200 ${
-                activeTab === tab.id
-                  ? 'border-plant-green text-plant-green'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+        {/* Care Plan Tabs */}
+        <div className="max-w-6xl mx-auto">
+          {/* Mobile: Modern Dropdown */}
+          <div className="md:hidden mb-8">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              className="w-full p-4 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm text-gray-800 font-medium shadow-lg focus:ring-2 focus:ring-plant-green focus:border-plant-green"
             >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow-md p-6 min-h-[300px]">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-semibold text-gray-800">
-              {tabs.find(tab => tab.id === activeTab)?.label}
-            </h3>
-            <button
-              onClick={() => handleCopySection(JSON.stringify(renderTabContent()))}
-              className={`px-3 py-1 text-sm rounded transition-colors duration-200 ${
-                copied 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {copied ? '✓ Copied!' : '📋 Copy'}
-            </button>
+              {tabs.map(tab => (
+                <option key={tab.id} value={tab.id}>{tab.label}</option>
+              ))}
+            </select>
           </div>
-          <div className="text-gray-700 leading-relaxed">
-            {renderTabContent()}
+
+          {/* Desktop: Modern Tab Navigation */}
+          <div className="hidden md:flex flex-wrap justify-center bg-white/60 backdrop-blur-sm rounded-2xl p-2 mb-8 border border-white/30">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 font-medium text-sm rounded-xl transition-all duration-300 mx-1 ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-plant-green to-leaf-green text-white shadow-lg transform scale-105'
+                    : 'text-sage-green hover:text-gray-800 hover:bg-white/70'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 min-h-[350px] border border-white/30">
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-2xl font-display font-bold text-gray-800">
+                {tabs.find(tab => tab.id === activeTab)?.label}
+              </h3>
+              <button
+                onClick={() => handleCopySection(JSON.stringify(renderTabContent()))}
+                className={`px-4 py-2 text-sm rounded-xl transition-all duration-300 font-medium ${
+                  copied 
+                    ? 'bg-green-100 text-green-700 shadow-inner' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 shadow-md hover:shadow-lg transform hover:scale-105'
+                }`}
+              >
+                {copied ? '✓ Copied!' : '📋 Copy'}
+              </button>
+            </div>
+            <div className="text-gray-700 leading-relaxed text-lg">
+              {renderTabContent()}
+            </div>
           </div>
         </div>
       </div>

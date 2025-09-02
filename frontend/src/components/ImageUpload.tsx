@@ -156,46 +156,48 @@ const ImageUpload = ({ onImageSelect }: ImageUploadProps) => {
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200 ${
+          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-300 ${
             isProcessing
-              ? 'border-blue-400 bg-blue-50 cursor-wait'
+              ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 cursor-wait'
               : isDragging
-              ? 'border-plant-green bg-green-50'
+              ? 'border-plant-green bg-gradient-to-br from-soft-mint to-green-50 transform scale-105'
               : error
-              ? 'border-red-400 bg-red-50'
-              : 'border-gray-300 hover:border-plant-green hover:bg-green-50'
+              ? 'border-red-400 bg-gradient-to-br from-red-50 to-pink-50'
+              : 'border-gray-300 hover:border-plant-green hover:bg-gradient-to-br hover:from-soft-mint hover:to-green-50 hover:transform hover:scale-105'
           }`}
         >
-          <div className="space-y-4">
-            <div className="text-6xl">📸</div>
+          <div className="space-y-6">
+            <div className={`text-7xl transition-all duration-300 ${isDragging ? 'animate-bounce-subtle' : ''}`}>
+              📸
+            </div>
             <div>
-              <p className="text-lg font-medium text-gray-700 mb-2">
+              <p className="text-xl font-display font-semibold text-gray-800 mb-3">
                 {isProcessing ? 'Processing Image...' : 'Upload Your Plant Photo'}
               </p>
-              <p className="text-sm text-gray-500">
-                {isProcessing ? 'Processing image, please wait' : 'Click here or drag and drop your image'}
+              <p className="text-sage-green mb-2">
+                {isProcessing ? 'Optimizing image for analysis' : 'Click here or drag and drop your image'}
               </p>
-              <p className="text-xs text-gray-400 mt-2">
+              <p className="text-xs text-gray-500 bg-white/70 rounded-full px-3 py-1 inline-block">
                 JPEG, PNG, WebP • Max 10MB
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="relative max-w-sm mx-auto">
+        <div className="relative max-w-xs mx-auto">
           <img
             src={preview}
             alt="Plant preview"
-            className="w-80 h-64 object-cover rounded-lg shadow-md mx-auto"
+            className="w-full h-48 object-cover rounded-xl shadow-lg"
           />
           <button
             onClick={handleRemoveImage}
-            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
+            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-md transition-colors duration-200"
           >
             ×
           </button>
-          <div className="mt-4 p-3 bg-green-100 rounded-lg">
-            <p className="text-sm text-green-700 text-center">
+          <div className="mt-4 p-3 bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl border border-green-200">
+            <p className="text-sm text-green-800 text-center font-medium">
               ✅ Image ready for identification
             </p>
           </div>

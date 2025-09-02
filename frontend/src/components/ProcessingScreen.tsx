@@ -109,31 +109,36 @@ const ProcessingScreen = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto text-center">
-          <h1 className="text-3xl font-bold text-red-600 mb-8">
-            Analysis Failed ❌
-          </h1>
-          
-          <div className="bg-red-50 border border-red-400 text-red-700 px-6 py-4 rounded-lg mb-8">
-            <p className="font-medium mb-2">Error:</p>
-            <p className="text-sm">{error}</p>
-          </div>
-
-          <div className="space-y-4">
-            <button
-              onClick={handleRetry}
-              className="w-full bg-plant-green hover:bg-leaf-green text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-            >
-              Try Again
-            </button>
+      <div className="min-h-screen bg-gradient-to-br from-soft-mint via-white to-nature-beige">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto text-center">
+            <div className="inline-block p-3 bg-white rounded-full shadow-lg mb-4">
+              <span className="text-3xl">❌</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-red-600 mb-8">
+              Analysis Failed
+            </h1>
             
-            <button
-              onClick={handleCancel}
-              className="w-full px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
-            >
-              Upload Different Image
-            </button>
+            <div className="bg-red-50/80 backdrop-blur-sm border border-red-300 text-red-700 px-6 py-4 rounded-2xl mb-8 shadow-lg">
+              <p className="font-semibold mb-2">Error:</p>
+              <p className="text-sm leading-relaxed">{error}</p>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={handleRetry}
+                className="w-full bg-gradient-to-r from-plant-green to-leaf-green hover:from-leaf-green hover:to-forest-green text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Try Again
+              </button>
+              
+              <button
+                onClick={handleCancel}
+                className="w-full px-6 py-3 text-sage-green hover:text-gray-800 transition-all duration-300 font-medium bg-white/60 hover:bg-white/80 rounded-xl backdrop-blur-sm border border-white/30 hover:shadow-lg"
+              >
+                Upload Different Image
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -141,12 +146,16 @@ const ProcessingScreen = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-md mx-auto text-center">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-plant-green mb-8">
-          Analyzing Your Plant 🔍
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-soft-mint via-white to-nature-beige">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-md mx-auto text-center">
+          {/* Header */}
+          <div className="inline-block p-3 bg-white rounded-full shadow-lg mb-4 animate-bounce-subtle">
+            <span className="text-3xl">🔍</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-display font-bold bg-gradient-to-r from-plant-green via-leaf-green to-forest-green bg-clip-text text-transparent mb-8">
+            Analyzing Your Plant
+          </h1>
 
         {/* Progress Circle */}
         <div className="relative w-32 h-32 mx-auto mb-8">
@@ -182,29 +191,29 @@ const ProcessingScreen = () => {
         </div>
 
         {/* Fun Plant Facts */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8 min-h-[100px] flex items-center">
-          <p className="text-gray-700 text-lg leading-relaxed">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-8 min-h-[100px] flex items-center border border-white/30">
+          <p className="text-gray-700 text-lg leading-relaxed font-medium">
             {plantFacts[currentFact]}
           </p>
         </div>
 
         {/* Processing Steps */}
-        <div className="text-left mb-8">
-          <div className="flex items-center mb-3">
-            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 10 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
-            <span className={progress > 10 ? 'text-plant-green font-medium' : 'text-gray-500'}>
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 text-left mb-8 border border-white/30 shadow-lg">
+          <div className="flex items-center mb-4">
+            <div className={`w-5 h-5 rounded-full mr-4 transition-all duration-300 ${progress > 10 ? 'bg-gradient-to-r from-plant-green to-leaf-green shadow-lg' : 'bg-gray-300'}`}></div>
+            <span className={`transition-colors duration-300 ${progress > 10 ? 'text-plant-green font-semibold' : 'text-gray-500 font-medium'}`}>
               Uploading image
             </span>
           </div>
-          <div className="flex items-center mb-3">
-            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 40 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
-            <span className={progress > 40 ? 'text-plant-green font-medium' : 'text-gray-500'}>
+          <div className="flex items-center mb-4">
+            <div className={`w-5 h-5 rounded-full mr-4 transition-all duration-300 ${progress > 40 ? 'bg-gradient-to-r from-plant-green to-leaf-green shadow-lg' : 'bg-gray-300'}`}></div>
+            <span className={`transition-colors duration-300 ${progress > 40 ? 'text-plant-green font-semibold' : 'text-gray-500 font-medium'}`}>
               Analyzing plant features
             </span>
           </div>
           <div className="flex items-center">
-            <div className={`w-4 h-4 rounded-full mr-3 ${progress > 70 ? 'bg-plant-green' : 'bg-gray-300'}`}></div>
-            <span className={progress > 70 ? 'text-plant-green font-medium' : 'text-gray-500'}>
+            <div className={`w-5 h-5 rounded-full mr-4 transition-all duration-300 ${progress > 70 ? 'bg-gradient-to-r from-plant-green to-leaf-green shadow-lg' : 'bg-gray-300'}`}></div>
+            <span className={`transition-colors duration-300 ${progress > 70 ? 'text-plant-green font-semibold' : 'text-gray-500 font-medium'}`}>
               Generating care plan
             </span>
           </div>
@@ -212,7 +221,7 @@ const ProcessingScreen = () => {
 
         {/* Current Step */}
         <div className="mb-8">
-          <p className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg">
+          <p className="text-sm font-medium text-gray-700 bg-gradient-to-r from-blue-100 to-indigo-100 px-6 py-3 rounded-xl border border-blue-200 backdrop-blur-sm">
             {currentStep}...
           </p>
         </div>
@@ -220,10 +229,11 @@ const ProcessingScreen = () => {
         {/* Cancel Button */}
         <button
           onClick={handleCancel}
-          className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          className="px-6 py-3 text-sage-green hover:text-gray-800 transition-all duration-300 font-medium bg-white/60 hover:bg-white/80 rounded-xl backdrop-blur-sm border border-white/30 hover:shadow-lg"
         >
           Cancel
         </button>
+        </div>
       </div>
     </div>
   );
