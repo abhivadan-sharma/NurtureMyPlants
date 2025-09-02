@@ -1,8 +1,8 @@
 // In production, API calls go to /api/* (same domain, no CORS issues)
 // In development, use the dev server proxy or environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || (
-  window.location.hostname === 'localhost' ? 'http://localhost:3002' : ''
-);
+const API_BASE_URL = window.location.hostname === 'localhost' ? 
+  (import.meta.env.VITE_API_URL || 'http://localhost:3002') : 
+  '';
 
 export interface PlantIdentification {
   commonName: string;
