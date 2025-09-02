@@ -1,0 +1,13 @@
+{
+  "name": "nurture-my-plants",
+  "version": "1.0.0",
+  "description": "Plant identification and care plan generator",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3",
+    "@vercel/node": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.17"
+  }
+}
