@@ -12,6 +12,7 @@ const ResultsScreen = () => {
 
   const plantData: PlantAnalysisResponse | null = location.state?.plantData || null;
   const imageFile: File | null = location.state?.image || null;
+  const isNotPlant: boolean = location.state?.isNotPlant || false;
 
   if (!plantData) {
     // If no plant data, redirect to home
@@ -24,6 +25,72 @@ const ResultsScreen = () => {
   const handleNewUpload = () => {
     navigate('/');
   };
+
+  // Handle non-plant case
+  if (isNotPlant || plantData.isPlant === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-soft-mint via-white to-nature-beige">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="inline-block p-4 bg-white rounded-full shadow-lg mb-6">
+              <span className="text-4xl">🤔</span>
+            </div>
+            <h1 className="text-3xl md:text-5xl font-display font-bold bg-gradient-to-r from-amber-600 via-orange-500 to-red-600 bg-clip-text text-transparent mb-6">
+              Hmm, that's not a plant!
+            </h1>
+            
+            {/* Image Preview */}
+            {imageFile && (
+              <div className="max-w-xs mx-auto mb-8">
+                <img
+                  src={URL.createObjectURL(imageFile)}
+                  alt="Your uploaded image"
+                  className="w-full h-40 object-cover rounded-xl shadow-lg ring-2 ring-orange-100"
+                />
+              </div>
+            )}
+            
+            <div className="max-w-2xl mx-auto mb-12">
+              <p className="text-lg md:text-xl text-gray-700 mb-6 leading-relaxed">
+                {plantData.message || "I don't see a plant in this image! 🌱 Please try uploading a photo of a plant, flower, tree, or any other vegetation for identification and care guidance."}
+              </p>
+              
+              <div className="bg-green-50/80 backdrop-blur-sm border border-green-200 rounded-2xl p-6 mb-8">
+                <p className="font-semibold text-green-800 mb-4">💡 Tips for better results:</p>
+                <ul className="text-green-700 text-left space-y-3">
+                  <li className="flex items-start">
+                    <span className="text-green-600 mr-3">•</span>
+                    <span>Make sure the plant takes up most of the image</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-600 mr-3">•</span>
+                    <span>Use good lighting - natural light works best</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-600 mr-3">•</span>
+                    <span>Include leaves, flowers, or distinctive features</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-600 mr-3">•</span>
+                    <span>Try to minimize background distractions</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            {/* Action Button */}
+            <button 
+              onClick={handleNewUpload}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              📷 Try Another Image
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleCopySection = (content: string) => {
     navigator.clipboard.writeText(content);
@@ -90,6 +157,8 @@ const ResultsScreen = () => {
   ];
 
   const renderTabContent = () => {
+    if (!carePlan) return null;
+    
     switch (activeTab) {
       case 'watering':
         return (

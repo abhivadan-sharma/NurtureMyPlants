@@ -79,7 +79,9 @@ router.post('/identify-plant', plantIdentificationLimiter, globalApiLimiter, asy
     });
 
     // Step 1: Identify the plant
-    const identificationPrompt = `You are a botanical expert. Analyze this plant image and provide:
+    const identificationPrompt = `You are a botanical expert. First, determine if this image contains a plant or plant-like organism. If it doesn't contain a plant, respond with "not_a_plant" as the commonName.
+
+If it IS a plant, provide:
 1. Plant identification (common name and scientific name)
 2. Confidence level (high/medium/low)
 3. Key identifying features you observed
@@ -124,10 +126,47 @@ Return as JSON only, no other text:
       plantIdentification = JSON.parse(identificationText);
     } catch (error) {
       console.error('Failed to parse identification response:', identificationText);
+      
+      // Check if it's a simple "not_a_plant" response or contains that text
+      if (identificationText.includes('not_a_plant') || identificationText.toLowerCase().includes('not a plant')) {
+        console.log(`ℹ️ Non-plant image detected (text response) for session: ${sessionId}`);
+        return res.json({
+          identification: {
+            commonName: 'Not a plant detected',
+            scientificName: '',
+            confidence: 'high',
+            identifyingFeatures: ['This image does not appear to contain a plant'],
+            alternatives: null
+          },
+          isPlant: false,
+          message: "I don't see a plant in this image! 🌱 Please try uploading a photo of a plant, flower, tree, or any other vegetation for identification and care guidance.",
+          sessionId: sessionId,
+          timestamp: new Date().toISOString(),
+        });
+      }
+      
       return res.status(500).json({ error: 'Failed to identify plant' });
     }
 
     console.log(`✅ Identified plant: ${plantIdentification.commonName}`);
+
+    // Check if it's not a plant
+    if (plantIdentification.commonName === 'not_a_plant') {
+      console.log(`ℹ️ Non-plant image detected for session: ${sessionId}`);
+      return res.json({
+        identification: {
+          commonName: 'Not a plant detected',
+          scientificName: '',
+          confidence: 'high',
+          identifyingFeatures: ['This image does not appear to contain a plant'],
+          alternatives: null
+        },
+        isPlant: false,
+        message: "I don't see a plant in this image! 🌱 Please try uploading a photo of a plant, flower, tree, or any other vegetation for identification and care guidance.",
+        sessionId: sessionId,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     // Step 2: Generate care plan
     const carePlanPrompt = `Generate a comprehensive care plan for ${plantIdentification.commonName} (${plantIdentification.scientificName}). Include:
@@ -209,6 +248,7 @@ Format as JSON only, no other text. Use clear, actionable advice for beginners:
     res.json({
       identification: plantIdentification,
       carePlan: carePlan,
+      isPlant: true,
       sessionId: sessionId,
       timestamp: new Date().toISOString(),
     });

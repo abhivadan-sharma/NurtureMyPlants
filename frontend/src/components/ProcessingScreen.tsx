@@ -59,12 +59,23 @@ const ProcessingScreen = () => {
         // Navigate to results after a brief pause
         setTimeout(() => {
           if (!cancelled) {
-            navigate('/results', { 
-              state: { 
-                image: location.state.image,
-                plantData: plantData
-              } 
-            });
+            // Check if it's not a plant and redirect accordingly
+            if (plantData.isPlant === false) {
+              navigate('/results', { 
+                state: { 
+                  image: location.state.image,
+                  plantData: plantData,
+                  isNotPlant: true
+                } 
+              });
+            } else {
+              navigate('/results', { 
+                state: { 
+                  image: location.state.image,
+                  plantData: plantData
+                } 
+              });
+            }
           }
         }, 1000);
 

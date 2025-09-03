@@ -50,7 +50,9 @@ export interface CarePlan {
 
 export interface PlantAnalysisResponse {
   identification: PlantIdentification;
-  carePlan: CarePlan;
+  carePlan?: CarePlan;
+  isPlant?: boolean;
+  message?: string;
   sessionId: string;
   timestamp: string;
 }
